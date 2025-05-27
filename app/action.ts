@@ -238,35 +238,32 @@ export async function newOrder({
   });
 }
 
+export async function getOrders() {
+  const session = await requireUser();
+  try {
+    const orders = await prisma.orders.findMany({
+      where: {
+        userId: session?.id as string,
+      },
+      include: {
+        Prompt: true,
+      },
+    });
+    return orders;
+  } catch (error) {
+    console.log("Internal serverl error.", error);
+    return null;
+  }
+}
 
-// export async function newOrder({
-//   userId,
-//   promptId,
-//   payment_id,
-//   payment_method,
-//   promptName,
-// }: {
-//   userId: string;
-//   promptId: string;
-//   payment_id: string;
-//   payment_method: string;
-//   promptName: string;
-// }) {
-//   try {
-//     const order = await prisma.orders.create({
-//       data: {
-//         userId,
-//         payment_id,
-//         payment_method,
-//         promptId,
-//         promptName,
-//       },
-//     });
-
-//     return order;
-//   } catch (error) {
-//     console.error("Failed to create order:", error);
-//     throw error;
-//   }
-// }
-
+export async function newReview(promptId:string,review:string,rating:number) {
+  const session = await requireUser();
+  await prisma.reviews.create({
+    data:{
+      promptId, 
+      userId:session.id as string,
+      comment:review,
+      rating
+    }
+  })
+}
