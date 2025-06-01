@@ -14,7 +14,7 @@ export default async function AllPrompt() {
         keywords="Programming,MERN,Redux,Machine Learning"
       />
       <div className="flex min-h-screen">
-        <div className="2xl:w-[84%] w-[80%]">
+        <div className="">
           <Prompts data={data} />
         </div>
       </div>

@@ -28,8 +28,10 @@ model User {
 
   stripeCustomerId String? @unique
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Orders    Orders[]
+  Reviews   Reviews[]
 }
 
 model Account {
@@ -89,10 +91,14 @@ model Shop {
 }
 
 model Reviews {
-  id         String   @id @default(uuid())
-  promptId   String
-  prompt     Prompts  @relation(fields: [promptId], references: [id], onDelete: Cascade)
-  userId     String
+  id       String  @id @default(uuid())
+  
+  promptId String
+  prompt   Prompts @relation(fields: [promptId], references: [id], onDelete: Cascade)
+
+  userId   String
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade) 
+
   rating     Float
   comment    String
   createdAt  DateTime @default(now())
@@ -106,13 +112,15 @@ enum promptStatus {
 }
 
 model Orders {
-  id             String  @id @default(cuid())
+  id             String @id @default(cuid())
   userId         String
-  Prompt         Prompts @relation(fields: [promptId], references: [id], onDelete: Cascade)
   promptId       String
   promptName     String
   payment_method String
   payment_id     String
+
+  Users  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Prompt Prompts @relation(fields: [promptId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

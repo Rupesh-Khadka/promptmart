@@ -8,14 +8,14 @@ import { format } from "timeago.js";
 
 interface Props {
   shopsData: Array<{
-    id: string
-    name: string
-    email: string 
-    avatar: string
-    orders: number
-    prompts: number
-    rating: number
-    createdAt: Date 
+    id: string;
+    name: string;
+    email: string;
+    avatar: string;
+    orders: number;
+    prompts: number;
+    rating: number;
+    createdAt: Date;
   }>;
 }
 
@@ -54,7 +54,7 @@ const AllShops = ({ shopsData }: Props) => {
         return (
           <>
             <a href={`mailto:${params.row.email}`}>
-              <AiOutlineMail className="dark:text-white text-black" size={20} />
+              <AiOutlineMail className="text-white" size={20} />
             </a>
           </>
         );
@@ -69,7 +69,7 @@ const AllShops = ({ shopsData }: Props) => {
       rows.push({
         id: shop.id,
         name: shop?.name,
-        email: shop.email ,
+        email: shop.email,
         avatar: shop?.avatar,
         orders: shop?.orders,
         prompts: shop?.prompts,

@@ -5,6 +5,7 @@ import { requireUser } from "./utils/requireUser";
 import { prisma } from "./utils/db";
 import { redirect } from "next/navigation";
 import { stripe } from "./lib/stripe";
+import { revalidatePath } from "next/cache";
 
 export async function createShop(data: z.infer<typeof shopSchema>) {
   const session = await requireUser();
@@ -61,6 +62,18 @@ export async function createPrompt(data: z.infer<typeof promptSchema>) {
       sellerId: session?.id as string,
     },
   });
+
+  await prisma.shop.update({
+    where: {
+      userId: session?.id as string,
+    },
+    data: {
+      allProduct: {
+        increment: 1,
+      },
+    },
+  });
+
   redirect("/my-shop/prompts");
 }
 
@@ -92,8 +105,13 @@ export async function getPromptById(promptId: string) {
         id: promptId,
       },
       include: {
+        _count: true,
         orders: true,
-        reviews: true,
+        reviews: {
+          include: {
+            user: true,
+          },
+        },
         seller: {
           include: {
             Shop: true,
@@ -207,8 +225,6 @@ export async function stripePaymentIntegration(promptId: string) {
     cancel_url: `${process.env.NEXT_PUBLIC_URL}/payment/cancel`,
   });
 
-  console.log("Checkout session created with metadata:", session.metadata);
-
   return redirect(session.url as string);
 
   // return session;
@@ -246,7 +262,11 @@ export async function getOrders() {
         userId: session?.id as string,
       },
       include: {
-        Prompt: true,
+        Prompt: {
+          include: {
+            reviews: true,
+          },
+        },
       },
     });
     return orders;
@@ -256,14 +276,91 @@ export async function getOrders() {
   }
 }
 
-export async function newReview(promptId:string,review:string,rating:number) {
+export async function newReview(
+  promptId: string,
+  review: string,
+  rating: number
+) {
   const session = await requireUser();
+
   await prisma.reviews.create({
-    data:{
-      promptId, 
-      userId:session.id as string,
-      comment:review,
-      rating
-    }
-  })
+    data: {
+      promptId,
+      userId: session.id as string,
+      comment: review,
+      rating,
+    },
+  });
+
+  const aggregate = await prisma.reviews.aggregate({
+    where: { promptId },
+    _avg: {
+      rating: true,
+    },
+  });
+
+  const averageRating = aggregate._avg.rating || 0;
+
+  await prisma.prompts.update({
+    where: { id: promptId },
+    data: {
+      rating: averageRating,
+    },
+  });
+
+  const promptDetails = await prisma.prompts.findUnique({
+    where: {
+      id: promptId,
+    },
+    include: {
+      seller: true,
+    },
+  });
+
+  const shop = await prisma.shop.findUnique({
+    where: {
+      userId: promptDetails?.sellerId,
+    },
+  });
+
+  if (shop) {
+    const shopRatings = shop.rating + rating;
+    await prisma.shop.update({
+      where: {
+        userId: promptDetails?.sellerId,
+      },
+      data: {
+        rating: shop.rating === 0 ? shopRatings : shopRatings / 2,
+      },
+    });
+  }
+
+  revalidatePath(`/my-orders`);
+}
+
+export async function getUserOrders(userID: string) {
+  const user = await requireUser();
+
+  const orders = await prisma.orders.findMany({
+    where: {
+      Prompt: {
+        sellerId: userID,
+      },
+    },
+    include: {
+      Users: {
+        select: {
+          name: true,
+          email: true,
+        },
+      },
+      Prompt: {
+        select: {
+          name: true,
+          price: true,
+        },
+      },
+    },
+  });
+  return orders;
 }

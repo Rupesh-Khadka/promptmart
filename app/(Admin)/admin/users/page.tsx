@@ -20,7 +20,7 @@ const Page = async () => {
         keywords="Programming,MERN,Redux,Machine Learning"
       />
       <div className="flex min-h-screen">
-        <div className="2xl:w-[84%] w-[80%]">
+        <div className="w-full">
           <AllUsers users={users} />
         </div>
       </div>

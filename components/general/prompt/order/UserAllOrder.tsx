@@ -6,16 +6,9 @@ import { DataGrid } from "@mui/x-data-grid";
 import { format } from "timeago.js";
 import { PiDownloadDuotone } from "react-icons/pi";
 import { VscPreview } from "react-icons/vsc";
-import { RxCross1 } from "react-icons/rx";
-
 import { useEffect, useState } from "react";
-import { AiFillStar, AiOutlineStar } from "react-icons/ai";
-import toast from "react-hot-toast";
 import Header from "../../Header";
 import Loader from "../../Loader";
-import { Button } from "@heroui/button";
-import { newReview } from "@/app/action";
-import { ClientSubmitButton } from "../../SubmitButton";
 import ReviewModal from "./ReviewModal";
 
 interface OrderData {
@@ -53,10 +46,10 @@ const UserAllOrders = ({ user, isSellerExist, data }: UserAllOrderProps) => {
   const [open, setOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [promptId, setPromptId] = useState("");
-  const [review, setReview] = useState("");
-  const [rating, setRating] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [submitloading, setSubmitLoading] = useState(false);
+  const [promptData, setPromptData] = useState<OrderData["Prompt"] | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     setIsMounted(true);
@@ -100,6 +93,7 @@ const UserAllOrders = ({ user, isSellerExist, data }: UserAllOrderProps) => {
             onClick={() => {
               setOpen(true);
               setPromptId(params.row.prompt.id);
+              setPromptData(params.row.prompt);
             }}
           />
         </div>
@@ -124,29 +118,6 @@ const UserAllOrders = ({ user, isSellerExist, data }: UserAllOrderProps) => {
       prompt: item.Prompt,
     });
   });
-
-  //   const reviewHandler = async () => {
-  //     setSubmitLoading(true);
-  //     if (rating === 0 || review === "") {
-  //       toast.error("Please fill all the fields!");
-  //       setSubmitLoading(false);
-  //       return;
-  //     }
-  //     try {
-  //       // Submit review logic goes here
-  //       await newReview(promptId, review, rating);
-
-  //       toast.success("Review submitted!");
-  //       setOpen(false);
-  //       setReview("");
-  //       setRating(0);
-  //       setSubmitLoading(false);
-  //     } catch (err) {
-  //       toast.error("Please try again later.");
-  //     } finally {
-  //       setSubmitLoading(false);
-  //     }
-  //   };
 
   if (!isMounted) return null;
 
@@ -277,6 +248,8 @@ const UserAllOrders = ({ user, isSellerExist, data }: UserAllOrderProps) => {
               onClose={() => setOpen(false)}
               promptId={promptId}
               userId={user?.id}
+              // Pass the full prompt data to check if reviewed inside modal
+              promptData={promptData}
             />
           )}
         </div>
