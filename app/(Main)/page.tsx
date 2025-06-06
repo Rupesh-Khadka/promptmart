@@ -1,18 +1,23 @@
 import About from "@/components/general/About";
-import BestSellers from "@/components/general/BestSellers";
+
 import Footer from "@/components/general/Footer";
 import Future from "@/components/general/Future";
 import Header from "@/components/general/Header";
 import Hero from "@/components/general/Hero";
 import Partner from "@/components/general/Partner";
-import PromptCard from "@/components/general/prompt/PromptCard";
+
 import SellerBanner from "@/components/general/SellerBanner";
 import { Divider } from "@heroui/react";
 import Image from "next/image";
 import { auth } from "../utils/auth";
 import { prisma } from "../utils/db";
 import { redirect } from "next/navigation";
-import { getPrompt } from "../action";
+import { getPrompt, getTopSellers } from "../action";
+import LatestPrompt from "@/components/general/prompt/LatestPrompt";
+import { lazy, Suspense } from "react";
+import SellerCardLoader from "@/components/loaders/SellerCardLoader";
+
+const BestSellers = lazy(() => import("@/components/general/BestSellers"));
 
 export default async function Home() {
   const session = await auth();
@@ -37,6 +42,7 @@ export default async function Home() {
   }
 
   const promptData = await getPrompt();
+  const sellerData = await getTopSellers();
 
   return (
     <div className="overflow-hidden">
@@ -58,18 +64,16 @@ export default async function Home() {
       <div className="w-[95%] md:w-[90%] xl:w-[80%] 2xl:w-[75%] m-auto">
         <About />
         <div>
-          <h1 className="text-4xl font-[700] text-white p-2 font-Monserrat">
-            Latest Prompts
-          </h1>
-          <div className="flex flex-wrap">
-            <PromptCard data={promptData} />
-          </div>
+          <LatestPrompt initialPrompts={promptData} />
           <br />
-          <BestSellers />
+          {sellerData.map((seller) => (
+            <Suspense fallback={<SellerCardLoader />} key={seller.id}>
+              <BestSellers sellers={seller} />
+            </Suspense>
+          ))}
           <Future />
           <Partner />
           <SellerBanner />
-
           <br />
           <br />
           <Divider className="bg-[#ffffff23]" />

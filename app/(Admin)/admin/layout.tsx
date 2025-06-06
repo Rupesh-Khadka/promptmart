@@ -6,7 +6,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "PromptMart - Admin",
-  // description: "Buy & Sell High-Quality AI Prompts Instantly",s
+  // description: "Buy & Sell High-Quality AI Prompts Instantly",
 };
 
 export default async function AdminLAyout({

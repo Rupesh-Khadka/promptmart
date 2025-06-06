@@ -13,7 +13,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: profile.name,
           email: profile.email,
           image: profile.picture,
-          role: "USER", // default role
+          role: "USER", 
         };
       },
     }),

@@ -88,16 +88,19 @@ model Shop {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  withdraws withdraws[]
+  banks     Banks?
 }
 
 model Reviews {
-  id       String  @id @default(uuid())
-  
+  id String @id @default(uuid())
+
   promptId String
   prompt   Prompts @relation(fields: [promptId], references: [id], onDelete: Cascade)
 
-  userId   String
-  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade) 
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   rating     Float
   comment    String
@@ -145,6 +148,29 @@ model Prompts {
   sellerId String
   seller   User   @relation(fields: [sellerId], references: [id])
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Banks {
+  id String @id @default(cuid())
+
+  bankName            String
+  bankAddress         String
+  sellerId            String @unique
+  bank                Shop   @relation(fields: [sellerId], references: [id])
+  account_holder_name String
+  account_number      String
+  routing_number      String
+  swift_code          String
+}
+
+model withdraws {
+  id        String   @id @default(cuid())
+  sellerId  String   
+  shop      Shop     @relation(fields: [sellerId], references: [id])
+  amount    Float
+  status    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

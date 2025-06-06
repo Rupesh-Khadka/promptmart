@@ -73,7 +73,7 @@ export function CreatePromptForm() {
         <Input
           size="md"
           type="text"
-          label="Enter your prompt title"
+          placeholder="Enter your prompt title"
           {...register("name")}
           variant="bordered"
           className="text-white font-Inter"
@@ -85,7 +85,7 @@ export function CreatePromptForm() {
         <Input
           size="md"
           type="text"
-          label="Enter a short description for your prompt*"
+          placeholder="Enter a short description for your prompt*"
           {...register("shortDescription")}
           variant="bordered"
           className="text-white font-Inter"
@@ -110,8 +110,8 @@ export function CreatePromptForm() {
           <Input
             size="md"
             type="number"
-            label="Prompt estimate price"
-            placeholder="$20"
+            // label="Prompt estimate price"
+            placeholder="Prompt estimate price : $20"
             {...register("estimatePrice", { valueAsNumber: true })}
             variant="bordered"
             className="text-white font-Inter "
@@ -121,8 +121,8 @@ export function CreatePromptForm() {
           <Input
             size="md"
             type="number"
-            label="Prompt price"
-            placeholder="$15.99"
+            // label="Prompt price"
+            placeholder="Prompt price : $15.99"
             {...register("promptPrice", { valueAsNumber: true })}
             variant="bordered"
             className="text-white font-Inter"
@@ -141,7 +141,7 @@ export function CreatePromptForm() {
               <Select
                 label="Choose one category"
                 variant="bordered"
-                placeholder="Select one category"
+                // placeholder="Select one category"
                 selectedKeys={field.value ? new Set([field.value]) : new Set()}
                 onSelectionChange={(keys) =>
                   field.onChange(Array.from(keys)[0])
@@ -153,7 +153,7 @@ export function CreatePromptForm() {
                 {categorieItem.map((item) => (
                   <SelectItem
                     key={item.title}
-                    className="text-black font-Inter font-[600]"
+                    className="text-black  font-Inter font-[600]"
                   >
                     {item.title}
                   </SelectItem>
@@ -162,9 +162,9 @@ export function CreatePromptForm() {
             )}
           />
           <Input
+            label="Enter tags (comma separated)"
             size="md"
             type="text"
-            label="Enter tags (comma separated)"
             {...register("tags")}
             variant="bordered"
             className="text-white font-Inter"
@@ -253,10 +253,10 @@ export function CreatePromptForm() {
               endpoint="fileUploader"
               onClientUploadComplete={(res) => {
                 setValue("attachments", res[0].url);
-                // toast.success("Logo uploaded successfully!");
+                toast.success("Logo uploaded successfully!");
               }}
               onUploadError={() => {
-                // toast.error("Something went wrong. Please try again.");
+                toast.error("Something went wrong. Please try again.");
               }}
               className="ut-button:bg-primary   ut-button:text-white ut-button:hover:bg-primary/90 ut-label:text-muted-foreground ut-button:p-4 ut-button:my-2 ut-allowed-content:text-muted-foreground border-white"
             />

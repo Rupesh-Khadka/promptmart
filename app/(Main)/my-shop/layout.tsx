@@ -1,6 +1,6 @@
 import React from "react";
 import { ShopSideBar } from "@/components/general/shop/ShopSideBar";
-import { requireUser } from "../utils/requireUser";
+import { requireUser } from "../../utils/requireUser";
 
 export default async function MyShopLayout({
   children,

@@ -33,7 +33,7 @@ const AllInvoices = ({
               return (
                 <a href={`mailto:${params.row.userEmail}`}>
                   <AiOutlineMail
-                    className="dark:text-white text-black"
+                    className="dark:text-white text-white"
                     size={20}
                   />
                 </a>
@@ -49,16 +49,15 @@ const AllInvoices = ({
     data.forEach((invoice: any) => {
       rows.push({
         id: invoice.id,
-        name: invoice?.user?.firstName + " " + invoice?.user?.lastName,
-        email: invoice?.user?.emailAddresses[0].emailAddress,
-        title: invoice.prompt.name,
-        price: "US $" + invoice.prompt.price,
+        name: invoice?.user?.name,
+        email: invoice?.user?.email,
+        title: invoice.promptName,
+        price: "US $" + invoice.Prompt?.price,
         created_at: format(invoice.createdAt),
       });
     });
-
   return (
-    <Box m={`${!isDashboard && "20px"}`}>
+    <Box m={`${!isDashboard && "40px"}`}>
       <Box
         m={`${!isDashboard && "40px 0 0 0"}`}
         height={isDashboard ? "38vh" : "90vh"}

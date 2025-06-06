@@ -33,7 +33,7 @@ const AllShops = ({ shopsData }: Props) => {
           <>
             <Image
               src={params.row.avatar}
-              alt=""
+              alt="avatar"
               width={40}
               height={40}
               className="w-[40px] mx-[5px] h-[40px] rounded-full"

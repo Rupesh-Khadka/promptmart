@@ -62,7 +62,7 @@ const Header = ({ activeItem, user, isSellerExist }: Props) => {
         </div>
 
         <div className="flex ">
-          <Navigation activeItem={activeItem} />
+          <Navigation />
         </div>
 
         <div className="flex items-center ml-10">
@@ -117,7 +117,7 @@ const Header = ({ activeItem, user, isSellerExist }: Props) => {
                     <CgProfile className="text-[25px]" />
                   </Link>
                 )}
-                <Navigation activeItem={activeItem} />
+                <Navigation />
               </div>
             </div>
           </div>

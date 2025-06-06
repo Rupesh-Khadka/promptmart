@@ -1,4 +1,3 @@
-import { stripePaymentIntegration } from "@/app/action";
 import { requireUser } from "@/app/utils/requireUser";
 import Footer from "@/components/general/Footer";
 import Header from "@/components/general/Header";

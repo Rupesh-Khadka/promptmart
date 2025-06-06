@@ -1,6 +1,6 @@
 import CreateShopForm from "@/components/forms/CreateShopForm";
-import { requireUser } from "../utils/requireUser";
-import { prisma } from "../utils/db";
+import { requireUser } from "../../utils/requireUser";
+import { prisma } from "../../utils/db";
 import { redirect } from "next/navigation";
 
 const CreateShop = async () => {

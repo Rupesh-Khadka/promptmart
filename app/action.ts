@@ -1,6 +1,10 @@
 "use server";
 import { z } from "zod";
-import { promptSchema, shopSchema } from "./utils/zodSchemas";
+import {
+  promptSchema,
+  shopSchema,
+  withdrawMethodSchema,
+} from "./utils/zodSchemas";
 import { requireUser } from "./utils/requireUser";
 import { prisma } from "./utils/db";
 import { redirect } from "next/navigation";
@@ -98,6 +102,37 @@ export async function getPrompt(pageNumber = 1, pageSize = 8) {
   }
 }
 
+export async function getAllPrompt(page: number, pageSize = 8) {
+  try {
+    const [prompts, totalCount] = await Promise.all([
+      prisma.prompts.findMany({
+        include: {
+          orders: true,
+          reviews: true,
+          seller: true,
+        },
+        where: {
+          status: "Live",
+        },
+        take: pageSize,
+        skip: (page - 1) * pageSize,
+      }),
+      prisma.prompts.count({
+        where: {
+          status: "Live",
+        },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(totalCount / pageSize);
+
+    return { prompts, totalPages };
+  } catch (error) {
+    console.log("Internal server error.", error);
+    return { prompts: [], totalPages: 0 };
+  }
+}
+
 export async function getPromptById(promptId: string) {
   try {
     const data = await prisma.prompts.findUnique({
@@ -124,6 +159,21 @@ export async function getPromptById(promptId: string) {
     console.log("Internal serverl error.", error);
     return null;
   }
+}
+
+export async function getTopSellers() {
+  const sellers = await prisma.shop.findMany({
+    take: 4,
+    orderBy: [{ totalSales: "desc" }, { createdAt: "asc" }],
+    select: {
+      id: true,
+      name: true,
+      avatar: true,
+      rating: true,
+      totalSales: true,
+    },
+  });
+  return sellers;
 }
 
 export async function getPromptByCategory(PromptCategories: string) {
@@ -363,4 +413,128 @@ export async function getUserOrders(userID: string) {
     },
   });
   return orders;
+}
+
+export async function addWithDrawMethod(
+  data: z.infer<typeof withdrawMethodSchema>
+) {
+  const session = await requireUser();
+  const validateData = withdrawMethodSchema.parse(data);
+
+  const shop = await prisma.shop.findUnique({
+    where: {
+      userId: session.id,
+    },
+  });
+
+  if (!shop) {
+    throw new Error("Shop not found for user");
+  }
+
+  const newBanks = await prisma.banks.create({
+    data: {
+      sellerId: shop.id,
+      account_holder_name: validateData.account_holder_name,
+      bankName: validateData.bankName,
+      bankAddress: validateData.bankAddress,
+      account_number: validateData.account_number,
+      routing_number: validateData.routing_number,
+      swift_code: validateData.swift_code,
+    },
+  });
+  revalidatePath("/my-shop/withdraw");
+  return newBanks;
+}
+
+export async function addWithdraw({ amount }: { amount: number }) {
+  const user = await requireUser();
+  const respose = await prisma.withdraws.create({
+    data: {
+      sellerId: user.shop?.id,
+      amount: amount,
+      status: "Pending",
+    },
+  });
+}
+
+export const deleteWithDrawMethod = async (id: string) => {
+  try {
+    const user = await requireUser();
+    const withDrawMethod = await prisma.banks.delete({
+      where: {
+        id,
+      },
+    });
+    revalidatePath("/my-shop/withdraw");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const sellerInvoices = async ({ sellerId }: { sellerId: string }) => {
+  try {
+    const invoices = await prisma.withdraws.findMany({
+      where: {
+        sellerId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return invoices;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export async function getSellerInfo() {
+  try {
+    const user = await requireUser();
+
+    const shop = await prisma.shop.findUnique({
+      where: {
+        userId: user.id,
+      },
+      include: {
+        banks: true,
+      },
+    });
+
+    if (!shop) {
+      throw new Error("Shop not found for this user.");
+    }
+
+    const orders = await prisma.orders.findMany({
+      where: {
+        Prompt: {
+          sellerId: shop.userId,
+        },
+      },
+      include: {
+        Prompt: {
+          select: {
+            price: true,
+            promptImageUrl: true,
+            reviews: true,
+            promptFileUrl: true,
+            orders: {
+              include: {
+                Prompt: {
+                  select: {
+                    price: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return { shop, orders };
+  } catch (error) {
+    console.error("Failed to fetch seller info:", error);
+    throw new Error("Could not retrieve seller info.");
+  }
 }

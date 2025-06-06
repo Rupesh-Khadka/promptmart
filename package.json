@@ -16,7 +16,7 @@
     "@emotion/styled": "^11.14.0",
     "@heroui/avatar": "^2.2.16-beta.1",
     "@heroui/button": "^2.2.20-beta.1",
-    "@heroui/input": "^2.4.20-beta.1",
+    "@heroui/input": "^2.4.20",
     "@heroui/react": "^2.8.0-beta.4",
     "@hookform/resolvers": "^5.0.1",
     "@mui/icons-material": "^7.1.0",

@@ -71,7 +71,7 @@ const Prompts = ({ data }: { data: any[] | undefined }) => {
 
   return (
     <>
-      <Box m="20px">
+      <Box m="40px">
         <Box
           m="40px 0 0 0"
           height="90vh"
@@ -126,6 +126,10 @@ const Prompts = ({ data }: { data: any[] | undefined }) => {
               "&:focus-within": {
                 outline: "none !important",
               },
+              textAlign: "center", // Center text in cells
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
             },
             "& .MuiDataGrid-virtualScroller": {
               backgroundColor: "#1F2A40",
@@ -144,6 +148,32 @@ const Prompts = ({ data }: { data: any[] | undefined }) => {
             "& .MuiDataGrid-cellCheckbox": {
               "& .MuiButtonBase-root": {
                 color: "#fff !important",
+              },
+            },
+            // Responsive styles
+            "@media (max-width: 768px)": {
+              "& .MuiDataGrid-root": {
+                fontSize: "0.75rem",
+              },
+              "& .MuiDataGrid-columnHeaders": {
+                fontSize: "0.8rem",
+              },
+              "& .MuiDataGrid-cell": {
+                fontSize: "0.75rem",
+              },
+              "& .MuiDataGrid-columnHeaderTitle": {
+                fontSize: "0.8rem",
+              },
+            },
+            "@media (max-width: 480px)": {
+              "& .MuiDataGrid-root": {
+                fontSize: "0.65rem",
+              },
+              "& .MuiDataGrid-columnHeaders": {
+                fontSize: "0.7rem",
+              },
+              "& .MuiDataGrid-cell": {
+                fontSize: "0.65rem",
               },
             },
           }}

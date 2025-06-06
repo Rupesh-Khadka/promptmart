@@ -1,6 +1,6 @@
 import UserAllOrders from "@/components/general/prompt/order/UserAllOrder";
-import { getOrders } from "../action";
-import { requireUser } from "../utils/requireUser";
+import { getOrders } from "../../action";
+import { requireUser } from "../../utils/requireUser";
 
 export default async function MyOrders() {
   const data = await getOrders();
