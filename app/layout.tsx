@@ -4,7 +4,6 @@ import "./globals.css";
 import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-
 const monserrat = Montserrat({
   subsets: ["latin"],
   variable: "--font-montserrat",

@@ -177,10 +177,10 @@ export function WithDrawEarning({
                 </h1>
                 <div className="flex flex-col items-center justify-center py-12 ">
                   <div className="flex justify-between items-center w-full">
-                    <h1 className="w-[450px] text-xl font-[700] font-Inter text-white text-center">
+                    <h1 className="w-[450px] text-xl font-[700] font-Inter text-white text-center ">
                       Enter the withdrawn amount
                     </h1>
-                    <h1 className="pr-1 text-xl font-[700] font-Inter text-white text-center">
+                    <h1 className="pr-1 text-xl font-[700] font-Inter text-white text-center pl-8">
                       $
                     </h1>
                     <input

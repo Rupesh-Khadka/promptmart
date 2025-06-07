@@ -473,6 +473,7 @@ export const deleteWithDrawMethod = async (id: string) => {
 
 export const sellerInvoices = async ({ sellerId }: { sellerId: string }) => {
   try {
+    const session = await requireUser();
     const invoices = await prisma.withdraws.findMany({
       where: {
         sellerId,
