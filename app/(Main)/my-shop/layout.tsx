@@ -10,7 +10,10 @@ export default async function MyShopLayout({
   const session = await requireUser();
 
   return (
-    <div className="flex w-full min-h-screen bg-[#0F172A]">
+    <div
+      className="flex w-full min-h-screen bg-[#0F172A]"
+      suppressHydrationWarning
+    >
       <aside className="bg-[#111C42] w-[20%] 2xl:w-[17%]  sticky top-0 left-0 z-[20]">
         <ShopSideBar />
       </aside>

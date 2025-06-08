@@ -1,94 +1,59 @@
 "use client";
-import { Box } from "@mui/material";
+
 import { DataGrid } from "@mui/x-data-grid";
-import { AiOutlineMail } from "react-icons/ai";
+import { Box } from "@mui/material";
 import { format } from "timeago.js";
+import { useEffect, useState, useMemo } from "react";
 
-export interface OrderUser {
-  name: string | null;
-  email: string;
-}
-
-export interface OrderPrompt {
-  name: string;
-  price: number;
-}
-
-export interface Order {
+export interface Invoice {
   id: string;
-  userId: string;
-  promptId: string;
-  promptName: string;
-  payment_method: string;
-  payment_id: string;
+  sellerId: string;
+  amount: number;
+  status: string;
   createdAt: string | Date;
   updatedAt: string | Date;
-  Users: OrderUser;
-  Prompt: OrderPrompt;
 }
 
-interface ShopAllOrdersProps {
-  isDashboard: boolean;
-  ordersData: Order[];
-}
+const AllInvoices = ({ invoices }: { invoices: Invoice[] }) => {
+  const [isClient, setIsClient] = useState(false);
 
-const ShopAllOrders = ({ isDashboard, ordersData }: ShopAllOrdersProps) => {
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const columns = [
     { field: "id", headerName: "ID", flex: 0.3 },
-    { field: "name", headerName: "Name", flex: isDashboard ? 0.6 : 0.5 },
-    ...(isDashboard
-      ? []
-      : [
-          { field: "email", headerName: "Email", flex: 1 },
-          { field: "title", headerName: "Prompt Title", flex: 1 },
-        ]),
-    { field: "price", headerName: "Price", flex: 0.5 },
-    ...(isDashboard
-      ? [{ field: "created_at", headerName: "Created At", flex: 0.5 }]
-      : [
-          {
-            field: " ",
-            headerName: "Email",
-            flex: 0.2,
-            renderCell: (params: any) => {
-              return (
-                <Box
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                  width="100%"
-                  height="100%"
-                >
-                  <a href={`mailto:${params.row.email}`}>
-                    <AiOutlineMail className="text-white" size={20} />
-                  </a>
-                </Box>
-              );
-            },
-          },
-        ]),
+    { field: "amount", headerName: "Amount", flex: 0.5 },
+    { field: "created_at", headerName: "Created At", flex: 0.5 },
+    { field: "updated_at", headerName: "Updated At", flex: 0.5 },
+    {
+      field: "status",
+      headerName: "Withdraw status",
+      flex: 0.5,
+    },
   ];
 
-  const rows: any = [];
+  // Memoize rows to avoid recalculating on every render
+  const rows = useMemo(() => {
+    if (!isClient) return [];
 
-  ordersData &&
-    ordersData.forEach((order: any) => {
-      rows.push({
-        id: order.id,
-        name: order.Users.name,
-        email: order.Users.email,
-        title: order.Prompt.name,
-        price: `$${order.Prompt.price}`,
-        created_at: format(order.createdAt),
-      });
-    });
+    return invoices.map((invoice) => ({
+      id: invoice.id,
+      amount: `US$${invoice.amount}`,
+      created_at: format(invoice.createdAt),
+      updated_at: format(invoice.updatedAt),
+      status: invoice.status,
+    }));
+  }, [invoices, isClient]);
+
+  if (!isClient) return null;
 
   return (
-    <div className="">
-      <Box m={`${!isDashboard && "20px"}`}>
+    <>
+      <Box m="20px">
         <Box
           m="40px 0 0 0"
-          height={isDashboard ? "35vh" : "90vh"}
+          height="90vh"
           sx={{
             "& .MuiDataGrid-root": {
               border: "none",
@@ -167,17 +132,11 @@ const ShopAllOrders = ({ isDashboard, ordersData }: ShopAllOrdersProps) => {
             },
           }}
         >
-          <DataGrid
-            checkboxSelection
-            rows={rows}
-            columns={columns}
-            disableColumnMenu={false}
-            hideFooter={isDashboard}
-          />
+          <DataGrid checkboxSelection rows={rows} columns={columns} />
         </Box>
       </Box>
-    </div>
+    </>
   );
 };
 
-export default ShopAllOrders;
+export default AllInvoices;
