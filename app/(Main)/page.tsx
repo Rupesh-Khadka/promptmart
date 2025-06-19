@@ -57,7 +57,7 @@ export default async function Home() {
         height={120}
         alt="Star"
         className="absolute right-[0px] "
-      />
+      />  
 
       <br />
 

@@ -176,6 +176,16 @@ export async function getTopSellers() {
   return sellers;
 }
 
+export async function getPromptByShop() {
+  const session = await requireUser();
+
+  return await prisma.prompts.findMany({
+    where: {
+      sellerId: session.id,
+    },
+  });
+}
+
 export async function getPromptByCategory(PromptCategories: string) {
   try {
     const data = await prisma.prompts.findMany({

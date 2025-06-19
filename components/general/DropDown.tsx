@@ -12,6 +12,7 @@ import React from "react";
 import { GrDocumentStore } from "react-icons/gr";
 import { AiOutlineLogout } from "react-icons/ai";
 import { HiOutlineSwitchVertical } from "react-icons/hi";
+import Image from "next/image";
 
 interface User {
   name?: string | null;
@@ -29,8 +30,11 @@ const DropDown = ({ user, isSellerExist }: Props) => {
     <div>
       <Dropdown className="bg-black text-white">
         <DropdownTrigger>
-          <Avatar
+          <Image
             className="size-[40px] cursor-pointer"
+            priority
+            height={500}
+            width={500}
             src={user.image ?? ""}
             alt={user.name ?? "User"}
           />
@@ -62,7 +66,11 @@ const DropDown = ({ user, isSellerExist }: Props) => {
             </Link>
           </DropdownItem>
 
-          <DropdownItem key="delete" className="text-danger m-0 p-0" color="danger">
+          <DropdownItem
+            key="delete"
+            className="text-danger m-0 p-0"
+            color="danger"
+          >
             <form action={SignOut}>
               <button
                 type="submit"
