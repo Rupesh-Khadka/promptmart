@@ -7,13 +7,23 @@ import { AiOutlineMoneyCollect } from "react-icons/ai";
 import { BiBorderLeft } from "react-icons/bi";
 import OrderAnalytics from "../prompt/order/OrderAnalytics";
 import AllPrompts from "../prompt/AllPrompts";
+import ShopAllOrders from "./ShopAllOrders";
+
+interface Prompt {
+  id: string;
+  name: string;
+  price: number;
+  rating: number;
+  orders: any[];
+  status: string;
+}
 
 export const ShopDashboard = ({
   ordersData,
   promptsData,
 }: {
   ordersData: any;
-  promptsData: any;
+  promptsData: Prompt[];
 }) => {
   const totalSales = ordersData?.reduce(
     (total: number, item: any) => (item?.prompt?.price || 0) + total,
@@ -23,12 +33,13 @@ export const ShopDashboard = ({
   return (
     <div>
       <div className="mt-[5px] min-h-screen">
-        <div className="grid grid-cols-[75%,25%]">
-          <div className="p-8">
+        {/* <div className="grid grid-cols-[75%_25%] w-full"> */}
+        <div className="grid md:grid-cols-[65%_34%]">
+          <div className="p-8 col-span-1">
             <OrderAnalytics isDashboard={true} />
           </div>
 
-          <div className="pt-[80px] pr-8">
+          <div className="pt-[80px] pr-8 col-span-1">
             <div className="w-full bg-[#111C43] rounded-sm shadow">
               <div className="flex items-center p-5 justify-between">
                 <div className="w-full flex flex-col items-center">
@@ -59,7 +70,7 @@ export const ShopDashboard = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-[65%,34%] mt-[-20px]">
+        <div className="grid md:grid-cols-[65%_34%] mt-[-20px]">
           <div className="bg-[#111c43] w-[94%] mt-[30px] h-[43vh] shadow-sm m-auto">
             <h1
               className={`${styles.label} !text-[20px]
@@ -68,14 +79,14 @@ export const ShopDashboard = ({
               All Prompts
             </h1>
             <div className="mt-[-30px]">
-              {/* <AllPrompts promptsData={promptsData} isDashboard={true} /> */}
+              <AllPrompts prompts={promptsData} isDashboard={true} />
             </div>
           </div>
           <div className="p-3">
             <h5 className="text-[#fff] text-[20px] font-[400] font-Poppins pb-3">
               Recent Orders
             </h5>
-            {/* <ShopAllOrders isDashboard={true} ordersData={ordersData} /> */}
+            <ShopAllOrders isDashboard={true} ordersData={ordersData} />
           </div>
         </div>
       </div>

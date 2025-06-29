@@ -10,6 +10,9 @@ import { prisma } from "./utils/db";
 import { redirect } from "next/navigation";
 import { stripe } from "./lib/stripe";
 import { revalidatePath } from "next/cache";
+import redis from "./lib/redis";
+import { clearPromptCache } from "./utils/clearPromptCache";
+import { openai } from "./lib/openai";
 
 export async function createShop(data: z.infer<typeof shopSchema>) {
   const session = await requireUser();
@@ -78,6 +81,7 @@ export async function createPrompt(data: z.infer<typeof promptSchema>) {
     },
   });
 
+  await clearPromptCache();
   redirect("/my-shop/prompts");
 }
 
@@ -103,7 +107,13 @@ export async function getPrompt(pageNumber = 1, pageSize = 8) {
 }
 
 export async function getAllPrompt(page: number, pageSize = 8) {
+  const cacheKey = `prompts:page:${page}:size:${pageSize}`;
   try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
     const [prompts, totalCount] = await Promise.all([
       prisma.prompts.findMany({
         include: {
@@ -125,6 +135,11 @@ export async function getAllPrompt(page: number, pageSize = 8) {
     ]);
 
     const totalPages = Math.ceil(totalCount / pageSize);
+
+    const result = { prompts, totalPages };
+
+    // Store the result in Redis with TTL (e.g., 5 min)
+    await redis.set(cacheKey, JSON.stringify(result), "EX", 300);
 
     return { prompts, totalPages };
   } catch (error) {
@@ -182,6 +197,14 @@ export async function getPromptByShop() {
   return await prisma.prompts.findMany({
     where: {
       sellerId: session.id,
+    },
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      rating: true,
+      orders: true,
+      status: true,
     },
   });
 }
@@ -592,4 +615,13 @@ export async function generateLast12MonthsOrderData(): Promise<{
     last12Months.push({ month: monthYear, count });
   }
   return { last12Months };
+}
+
+export async function askAI(message: string): Promise<string> {
+  const response = await openai.chat.completions.create({
+    model: "llama3-8b-8192",
+    messages: [{ role: "user", content: message }],
+  });
+
+  return response.choices[0].message.content || "";
 }

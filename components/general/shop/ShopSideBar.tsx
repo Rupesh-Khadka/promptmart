@@ -40,7 +40,7 @@ export function ShopSideBar() {
     <nav className="w-full mx-5 ">
       <div>
         <Link href="/">
-          <h1 className="font-Inter text-3xl mt-12">
+          <h1 className="font-Inter text-xl md:text-3xl mt-12 flex flex-col md:flex-row">
             <span className="text-[#64ff4c] ">Prompt</span>Mart
           </h1>
         </Link>
@@ -53,7 +53,7 @@ export function ShopSideBar() {
             <div className="flex items-center my-10 cursor-pointer gap-4">
               <div className={`text-3xl ${textColor}`}>{item.icon}</div>
               <span
-                className={`text-[16px] font-medium font-Inter ${textColor}`}
+                className={`text-[16px] font-medium font-Inter ${textColor} hidden md:block`}
               >
                 {item.title}
               </span>

@@ -3,9 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
+    "dev:socket": "nodemon server.ts",
     "build": "next build",
-    "start": "next start",
+    "start": "NODE_ENV=production next start",
+    "start:socket": "NODE_ENV=production ts-node --project tsconfig.server.json server.ts",
     "lint": "next lint"
   },
   "dependencies": {
@@ -26,11 +28,15 @@
     "@prisma/client": "^6.7.0",
     "@stripe/stripe-js": "^7.3.0",
     "@uploadthing/react": "^7.3.0",
+    "aws-sdk": "^2.1692.0",
     "bcrypt": "^6.0.0",
     "date-fns": "^4.1.0",
+    "dotenv": "^16.5.0",
     "framer-motion": "^12.9.4",
+    "ioredis": "^5.6.1",
     "next": "^15.3.1",
     "next-auth": "^5.0.0-beta.28",
+    "openai": "^5.6.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-fast-marquee": "^1.6.5",
@@ -40,6 +46,8 @@
     "react-pro-sidebar": "^0.7.1",
     "recharts": "^2.15.3",
     "resend": "^4.5.1",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
     "stripe": "^18.1.0",
     "timeago.js": "^4.0.2",
     "uploadthing": "^7.6.0",
@@ -54,8 +62,10 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
+    "nodemon": "^3.1.10",
     "prisma": "^6.7.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }

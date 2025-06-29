@@ -28,6 +28,7 @@ const Prompts = async () => {
   const session = await requireUser();
 
   const data = await getPrompt(session.id as string);
+  
 
   return (
     <div>
