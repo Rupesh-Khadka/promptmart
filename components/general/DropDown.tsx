@@ -31,7 +31,7 @@ const DropDown = ({ user, isSellerExist }: Props) => {
       <Dropdown className="bg-black text-white">
         <DropdownTrigger>
           <Image
-            className="size-[40px] cursor-pointer"
+            className="size-[50px] cursor-pointer rounded-full"
             priority
             height={500}
             width={500}

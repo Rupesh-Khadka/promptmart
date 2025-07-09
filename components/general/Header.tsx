@@ -7,6 +7,7 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { CgProfile } from "react-icons/cg";
 import { FaBars } from "react-icons/fa";
 import DropDown from "./DropDown";
+import { Input } from "@heroui/react";
 
 type User = {
   name?: string | null;
@@ -65,9 +66,14 @@ const Header = ({ activeItem, user, isSellerExist }: Props) => {
           <Navigation />
         </div>
 
-        <div className="flex items-center ml-10">
-          <AiOutlineSearch className="text-[25px] mr-5 cursor-pointer" />
-
+        <div className="flex items-center  gap-4">
+          <div className="flex items-center justify-center gap-2">
+            <AiOutlineSearch
+              // onClick={() => setSearchOpen(true)}
+              className="text-[25px] cursor-pointer"
+            />
+            <Input size="sm" placeholder="Search prompt..." />
+          </div>
           {/* Auth */}
 
           {user ? (
