@@ -86,7 +86,13 @@ export async function createPrompt(data: z.infer<typeof promptSchema>) {
 }
 
 export async function getPrompt(pageNumber = 1, pageSize = 8) {
+  const cacheKey = `prompts:page:${pageNumber}:size:${pageSize}`;
   try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
     const data = await prisma.prompts.findMany({
       include: {
         orders: true,
@@ -99,6 +105,8 @@ export async function getPrompt(pageNumber = 1, pageSize = 8) {
       take: pageSize,
       skip: (pageNumber - 1) * pageSize,
     });
+    await redis.set(cacheKey, JSON.stringify(data), "EX", 300);
+
     return data;
   } catch (error) {
     console.log("Internal serverl error.", error);
@@ -149,7 +157,15 @@ export async function getAllPrompt(page: number, pageSize = 8) {
 }
 
 export async function getPromptById(promptId: string) {
+  const session = await requireUser();
+  // Generate a unique Redis cache key based on the user's ID
+  const cacheKey = `prompts:user:${session.id}`;
   try {
+    const cached = await redis.get(cacheKey);
+
+    if (cached) {
+      return JSON.parse(cached);
+    }
     const data = await prisma.prompts.findUnique({
       where: {
         id: promptId,
@@ -169,6 +185,8 @@ export async function getPromptById(promptId: string) {
         },
       },
     });
+    await redis.set(cacheKey, JSON.stringify(data), "EX", 60 * 5); //expire in 5minutes (60 * 5 seconds)
+
     return data;
   } catch (error) {
     console.log("Internal serverl error.", error);
@@ -177,40 +195,79 @@ export async function getPromptById(promptId: string) {
 }
 
 export async function getTopSellers() {
-  const sellers = await prisma.shop.findMany({
-    take: 4,
-    orderBy: [{ totalSales: "desc" }, { createdAt: "asc" }],
-    select: {
-      id: true,
-      name: true,
-      avatar: true,
-      rating: true,
-      totalSales: true,
-    },
-  });
-  return sellers;
+  const session = await requireUser();
+  // Generate a unique Redis cache key based on the user's ID
+  const cacheKey = `sellers:user:${session.id}`;
+  try {
+    const cached = await redis.get(cacheKey);
+
+    // If cached data exists, parse it and return it immediately
+    if (cached) {
+      return JSON.parse(cached);
+    }
+    const sellers = await prisma.shop.findMany({
+      take: 4,
+      orderBy: [{ totalSales: "desc" }, { createdAt: "asc" }],
+      select: {
+        id: true,
+        name: true,
+        avatar: true,
+        rating: true,
+        totalSales: true,
+      },
+    });
+    await redis.set(cacheKey, JSON.stringify(sellers), "EX", 60 * 5); //expire in 5minutes (60 * 5 seconds)
+
+    return sellers;
+  } catch (error) {
+    console.log("Internal server error.", error);
+    return [];
+  }
 }
 
 export async function getPromptByShop() {
   const session = await requireUser();
+  const cacheKey = `prompts:user:${session.id}`;
 
-  return await prisma.prompts.findMany({
-    where: {
-      sellerId: session.id,
-    },
-    select: {
-      id: true,
-      name: true,
-      price: true,
-      rating: true,
-      orders: true,
-      status: true,
-    },
-  });
+  try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
+    const data = await prisma.prompts.findMany({
+      where: {
+        sellerId: session.id,
+      },
+      select: {
+        id: true,
+        name: true,
+        price: true,
+        rating: true,
+        orders: true,
+        status: true,
+      },
+    });
+    await redis.set(cacheKey, JSON.stringify(data), "EX", 60 * 5); //expire in 5minutes (60 * 5 seconds)
+
+    return data;
+  } catch (error) {
+    console.log("Internal server error.", error);
+    return [];
+  }
 }
 
 export async function getPromptByCategory(PromptCategories: string) {
+  const session = await requireUser();
+  // Generate a unique Redis cache key based on the user's ID
+  const cacheKey = `prompts:user:${session.id}`;
+
   try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
     const data = await prisma.prompts.findMany({
       include: {
         orders: true,
@@ -225,6 +282,8 @@ export async function getPromptByCategory(PromptCategories: string) {
         category: PromptCategories,
       },
     });
+    await redis.set(cacheKey, JSON.stringify(data), "EX", 60 * 5); //expire in 5minutes (60 * 5 seconds)
+
     return data;
   } catch (error) {
     console.log("Internal serverl error.", error);
@@ -339,7 +398,20 @@ export async function newOrder({
 
 export async function getOrders() {
   const session = await requireUser();
+  // Generate a unique Redis cache key based on the user's ID
+  const cacheKey = `orders:user:${session.id}`;
+
+  // const cacheKey = `orders:user`;
+
   try {
+    // Try to retrieve the cached data from Redis
+    const cached = await redis.get(cacheKey);
+
+    // If cached data exists, parse it and return it immediately
+    if (cached) {
+      return JSON.parse(cached);
+    }
+    // If no cached data, fetch the orders from the database
     const orders = await prisma.orders.findMany({
       where: {
         userId: session?.id as string,
@@ -352,13 +424,14 @@ export async function getOrders() {
         },
       },
     });
+    //  Store the fresh orders data in Redis cache
+    await redis.set(cacheKey, JSON.stringify(orders), "EX", 60 * 5); //expire in 5minutes (60 * 5 seconds)
     return orders;
   } catch (error) {
-    console.log("Internal serverl error.", error);
+    console.log("Internal server error.", error);
     return null;
   }
 }
-
 export async function newReview(
   promptId: string,
   review: string,
@@ -423,29 +496,39 @@ export async function newReview(
 
 export async function getUserOrders(userID: string) {
   const user = await requireUser();
+  const cacheKey = `orders:user:${user.id}`;
 
-  const orders = await prisma.orders.findMany({
-    where: {
-      Prompt: {
-        sellerId: userID,
-      },
-    },
-    include: {
-      Users: {
-        select: {
-          name: true,
-          email: true,
+  try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+    const orders = await prisma.orders.findMany({
+      where: {
+        Prompt: {
+          sellerId: userID,
         },
       },
-      Prompt: {
-        select: {
-          name: true,
-          price: true,
+      include: {
+        Users: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+        Prompt: {
+          select: {
+            name: true,
+            price: true,
+          },
         },
       },
-    },
-  });
-  return orders;
+    });
+    return orders;
+  } catch (error) {
+    console.log("Internal server error.", error);
+    return [];
+  }
 }
 
 export async function addWithDrawMethod(
@@ -523,7 +606,14 @@ export const sellerInvoices = async ({ sellerId }: { sellerId: string }) => {
 };
 
 export async function getSellerInfo() {
+  const session = await requireUser();
+  // Generate a unique Redis cache key based on the user's ID
+  const cacheKey = `sellers:user:${session.id}`;
   try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
     const user = await requireUser();
 
     const shop = await prisma.shop.findUnique({
@@ -565,6 +655,7 @@ export async function getSellerInfo() {
         },
       },
     });
+    await redis.set(cacheKey, JSON.stringify({ shop, orders }), "EX", 60 * 5); //expire in 5minutes (60 * 5 seconds)
 
     return { shop, orders };
   } catch (error) {
