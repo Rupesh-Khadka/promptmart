@@ -17,3 +17,18 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+// export async function GET(request: NextRequest) {
+//   try {
+//     // You can add query params later if needed (e.g., for pagination)
+//     const data = await getOrders();
+
+//     return NextResponse.json(data);
+//   } catch (error) {
+//     console.error("GET /api/orders error:", error);
+//     return NextResponse.json(
+//       { error: "Internal server error" },
+//       { status: 500 }
+//     );
+//   }
+// }
