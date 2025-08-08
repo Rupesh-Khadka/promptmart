@@ -1,0 +1,176 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  password      String?
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(USER)
+  accounts      Account[]
+  sessions      Session[]
+
+  Shop    Shop?
+  Prompts Prompts[]
+
+  stripeCustomerId String? @unique
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  Orders    Orders[]
+  Reviews   Reviews[]
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+model Shop {
+  id              String @id @default(uuid())
+  name            String @unique
+  description     String
+  shopProductType String
+  avatar          String
+  rating          Float  @default(0)
+  totalSales      Int    @default(0)
+  allProduct      Int    @default(0)
+
+  userId String @unique
+  user   User?  @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  withdraws withdraws[]
+  banks     Banks?
+}
+
+model Reviews {
+  id String @id @default(uuid())
+
+  promptId String
+  prompt   Prompts @relation(fields: [promptId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  rating     Float
+  comment    String
+  createdAt  DateTime @default(now())
+  upadatedAt DateTime @updatedAt
+}
+
+enum promptStatus {
+  Pending
+  Live
+  Declined
+}
+
+model Orders {
+  id             String @id @default(cuid())
+  userId         String
+  promptId       String
+  promptName     String
+  payment_method String
+  payment_id     String
+
+  Users  User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Prompt Prompts @relation(fields: [promptId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Prompts {
+  id               String       @id @default(cuid())
+  name             String
+  shortDescription String
+  description      String
+  promptImageUrl   String[]
+  estimatedPrice   Float?
+  price            Float
+  category         String
+  tags             String
+  rating           Float        @default(0)
+  reviews          Reviews[]
+  promptFileUrl    String
+  orders           Orders[]
+  status           promptStatus @default(Pending)
+
+  sellerId String
+  seller   User   @relation(fields: [sellerId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Banks {
+  id String @id @default(cuid())
+
+  bankName            String
+  bankAddress         String
+  sellerId            String @unique
+  bank                Shop   @relation(fields: [sellerId], references: [id])
+  account_holder_name String
+  account_number      String
+  routing_number      String
+  swift_code          String
+}
+
+model withdraws {
+  id        String   @id @default(cuid())
+  sellerId  String   
+  shop      Shop     @relation(fields: [sellerId], references: [id])
+  amount    Float
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
