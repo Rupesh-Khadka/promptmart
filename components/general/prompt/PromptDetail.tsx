@@ -20,7 +20,9 @@ export async function PromptDetails({ id }: Props) {
   if (!prompt) return <p>No prompt found.</p>;
   if (!data) return <p>No related prompt found.</p>;
 
-  const relatedPrompt = data && data.filter((value) => value.id !== prompt.id);
+  const relatedPrompt = Array.isArray(data)
+    ? data.filter((value: any) => value.id !== prompt.id)
+    : [];
 
   return (
     <div>
