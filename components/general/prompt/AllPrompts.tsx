@@ -38,7 +38,9 @@ const AllPrompts = ({ prompts, isDashboard = false }: AllPromptsProps) => {
     },
   ];
 
-  const rows = prompts.map((prompt) => ({
+  const safePrompts = Array.isArray(prompts) ? prompts : [];
+
+  const rows = safePrompts.map((prompt) => ({
     id: prompt.id,
     name: prompt.name,
     price: "$" + prompt.price,
