@@ -66,7 +66,7 @@ export default async function Home() {
         <div>
           <LatestPrompt initialPrompts={promptData} />
           <br />
-          {sellerData.map((seller) => (
+          {sellerData.map((seller:any) => (
             <Suspense fallback={<SellerCardLoader />} key={seller.id}>
               <BestSellers sellers={seller} />
             </Suspense>

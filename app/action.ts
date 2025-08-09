@@ -196,9 +196,9 @@ export async function getPromptById(promptId: string) {
 }
 
 export async function getTopSellers() {
-  const session = await requireUser();
+  // const session = await requireUser();
   // Generate a unique Redis cache key based on the user's ID
-  const cacheKey = `sellers:user:${session.id}`;
+  const cacheKey = `Top Seller:?? `;
   try {
     const cached = await redis.get(cacheKey);
 
@@ -259,9 +259,9 @@ export async function getPromptByShop() {
 }
 
 export async function getPromptByCategory(PromptCategories: string) {
-  const session = await requireUser();
+  // const session = await requireUser();
   // Generate a unique Redis cache key based on the user's ID
-  const cacheKey = `prompts:user:${session.id}`;
+  const cacheKey = `prompts:user:`;
 
   try {
     const cached = await redis.get(cacheKey);
@@ -709,7 +709,7 @@ export async function generateLast12MonthsOrderData(): Promise<{
 
     const allOrders = await prisma.orders.findMany();
 
-    const orders = allOrders.filter((order) => {
+    const orders = allOrders.filter((order:any) => {
       const createdAt = new Date(order.createdAt);
       return createdAt >= startDate && createdAt < endDate;
     });
