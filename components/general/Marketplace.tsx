@@ -77,7 +77,7 @@ export default function Marketplace({
         )}
       </div>
 
-      {prompts.length > 0 && (
+      {prompts?.length > 0 && (
         <div className="mt-4 flex items-center justify-center">
           <Pagination
             loop

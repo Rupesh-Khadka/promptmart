@@ -2,11 +2,12 @@
   "name": "promptmart",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
-    "dev:socket": "nodemon server.ts",
+    "dev:socket": "nodemon --exec ts-node --project tsconfig.server.json server.ts",
     "build": "next build",
-    "start": "NODE_ENV=production next start",
+    "start:next": "NODE_ENV=production next start",
     "start:socket": "NODE_ENV=production ts-node --project tsconfig.server.json server.ts",
     "lint": "next lint"
   },

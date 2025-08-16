@@ -1,8 +1,9 @@
 import { createServer } from "http";
 import next from "next";
 import { Server as SocketIOServer } from "socket.io";
-import { openai } from "./app/lib/openai";
-import { qaPairs, websiteDescription } from "./app/lib/QA";
+import { qaPairs, websiteDescription } from "./app/lib/QA.ts";  
+import { openai } from "./app/lib/openai.ts";                    
+
 
 const port = parseInt(process.env.SocketPort || "4000", 10);
 const dev = process.env.NODE_ENV !== "production";
@@ -20,12 +21,12 @@ function buildContext(): string {
 
 app.prepare().then(() => {
   const httpServer = createServer((req, res) => {
-    handle(req, res);
+    handle(req, res); // Next.js handles all HTTP requests
   });
 
   const io = new SocketIOServer(httpServer, {
     cors: {
-      origin: "*",
+      origin: "*", // Replace with your frontend URL in production
       methods: ["GET", "POST"],
     },
   });
@@ -36,14 +37,6 @@ app.prepare().then(() => {
     socket.on("send_message", async (msg: string) => {
       try {
         const context = buildContext();
-        // const res = await openai.chat.completions.create({
-        //   model: "llama3-8b-8192",
-        //   messages: [
-        //     { role: "system", content: "You are a helpful assistant." },
-        //     { role: "user", content: msg },
-        //   ],
-        //   temperature: 0.7,
-        // });
 
         const res = await openai.chat.completions.create({
           model: "llama3-8b-8192",
@@ -52,9 +45,9 @@ app.prepare().then(() => {
               role: "system",
               content: `You are an assistant for the PromptMart.
 
-               Only answer questions based on the information below. If the question is unrelated, say: "I'm sorry, I can only help with questions about PromptMart."
+Only answer questions based on the information below. If the question is unrelated, say: "I'm sorry, I can only help with questions about PromptMart."
 
-              Website Info:
+Website Info:
 ${context}`,
             },
             { role: "user", content: msg },
@@ -62,11 +55,15 @@ ${context}`,
           temperature: 0.3,
         });
 
-        const reply = res.choices[0]?.message?.content || "🤖 No reply.";
+        const reply =
+          res.choices?.[0]?.message?.content?.trim() || "🤖 No reply.";
         socket.emit("receive_message", reply);
-      } catch (e) {
-        console.error("AI Error:", e);
-        socket.emit("receive_message", "⚠️ Error generating response.");
+      } catch (error) {
+        console.error("❌ Error generating response:", error);
+        socket.emit(
+          "receive_message",
+          "⚠️ Error generating response. Please try again."
+        );
       }
     });
 
@@ -76,6 +73,8 @@ ${context}`,
   });
 
   httpServer.listen(port, () => {
-    console.log(`🚀 Ready on http://localhost:${port}`);
+    console.log(
+      `🚀 Server with Next.js + Socket.IO running at http://localhost:${port}`
+    );
   });
 });

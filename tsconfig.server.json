@@ -1,12 +1,13 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "CommonJS",
+    "module": "ESNext",                       // ✅ Required for ESM
     "target": "ES2020",
     "outDir": "dist",
     "esModuleInterop": true,
-    "strict": true,
     "moduleResolution": "node",
+    "allowImportingTsExtensions": true,      // ✅ Required for `.ts` imports
+    "strict": true,
     "skipLibCheck": true
   },
   "include": ["server.ts"]
