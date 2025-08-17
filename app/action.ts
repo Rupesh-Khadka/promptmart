@@ -386,27 +386,27 @@ export async function newOrder({
   payment_method: string;
   promptName: string;
 }) {
-  // await prisma.orders.create({
-  //   data: {
-  //     userId,
-  //     payment_id,
-  //     payment_method,
-  //     promptId,
-  //     promptName,
-  //   },
-  // });
+  await prisma.orders.create({
+    data: {
+      userId,
+      payment_id,
+      payment_method,
+      promptId,
+      promptName,
+    },
+  });
 
-  const data = {
-    userId,
-    payment_id,
-    payment_method,
-    promptId,
-    promptName,
-  };
+  // const data = {
+  //   userId,
+  //   payment_id,
+  //   payment_method,
+  //   promptId,
+  //   promptName,
+  // };
 
-  await produceOrder(data);
+  // await produceOrder(data);
 
-  console.log("Order produced to Kafka broker:", data);
+  // console.log("Order produced to Kafka broker:", data);
 }
 
 export async function getOrders() {

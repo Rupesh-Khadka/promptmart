@@ -76,7 +76,7 @@ export default function Marketplace({
           </div>
         )}
       </div>
-
+        
       {prompts?.length > 0 && (
         <div className="mt-4 flex items-center justify-center">
           <Pagination
